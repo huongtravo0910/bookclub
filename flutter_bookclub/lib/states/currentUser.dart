@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class CurrentUser extends ChangeNotifier {
   String _uid;
@@ -10,32 +11,59 @@ class CurrentUser extends ChangeNotifier {
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<bool> signupUser(String email, String password) async {
-    bool retVal = false;
+  Future<String> signupUser(String email, String password) async {
+    String retVal = "error";
     try {
       UserCredential _authResult = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       if (_authResult.user != null) {
-        retVal = true;
+        retVal = "success";
       }
     } catch (e) {
-      debugPrint(e.toString());
+      retVal = e.toString();
     }
     return retVal;
   }
 
-  Future<bool> loginiUserWithEmail(String email, String password) async {
-    bool retVal = false;
+  Future<String> loginiUserWithEmail(String email, String password) async {
+    String retVal = "error";
     try {
       UserCredential _authResult = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       if (_authResult.user != null) {
         _uid = _authResult.user.uid;
         _email = _authResult.user.email;
-        retVal = true;
+        retVal = "success";
       }
     } catch (e) {
-      debugPrint(e.toString());
+      retVal = e.toString();
+    }
+    return retVal;
+  }
+
+  Future<String> loginiUserWithGoogle() async {
+    String retVal = "error";
+    GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+        'https://www.googleapis.com/auth/contacts.readonly',
+      ],
+    );
+
+    try {
+      GoogleSignInAccount _googleUser = await _googleSignIn.signIn();
+      GoogleSignInAuthentication _googleAuth = await _googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+          idToken: _googleAuth.idToken, accessToken: _googleAuth.accessToken);
+      UserCredential _authResult = await _auth.signInWithCredential(credential);
+      if (_authResult.user != null) {
+        _uid = _authResult.user.uid;
+        _email = _authResult.user.email;
+        retVal = "success";
+      }
+    } catch (e) {
+      retVal = e.toString();
     }
     return retVal;
   }

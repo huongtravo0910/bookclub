@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "335343266357-u8q7ug4s7br3ghpo473h88a2ll91cu8a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_bookclub",
+            "certificate_hash": "7967fc5a371ee60f3ab11a3b59969c71b8f383ae"
+          }
+        },
+        {
           "client_id": "335343266357-qb18sdcfa1dbv81sbiv6occjiomlmfku.apps.googleusercontent.com",
           "client_type": 3
         }

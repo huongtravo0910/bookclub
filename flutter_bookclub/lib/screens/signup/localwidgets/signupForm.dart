@@ -19,9 +19,17 @@ class _OurSignupFormState extends State<OurSignupForm> {
     CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
 
     try {
-      if (await _currentUser.signupUser(email, password)) {
+      String _retVal = await _currentUser.signupUser(email, password);
+      if (_retVal == "success") {
         debugPrint("hello");
         Navigator.pop(context);
+      } else {
+        Scaffold.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_retVal),
+            duration: Duration(milliseconds: 2),
+          ),
+        );
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -73,6 +81,7 @@ class _OurSignupFormState extends State<OurSignupForm> {
               decoration: InputDecoration(
                 hintText: "   Enter your password",
               ),
+              obscureText: true,
             ),
           ),
           Padding(
@@ -82,6 +91,7 @@ class _OurSignupFormState extends State<OurSignupForm> {
               decoration: InputDecoration(
                 hintText: "   Enter your confirmed password",
               ),
+              obscureText: true,
             ),
           ),
           SizedBox(height: 40.0),

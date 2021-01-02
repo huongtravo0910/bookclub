@@ -4,6 +4,8 @@ import 'package:flutter_bookclub/screens/signup/signup.dart';
 import 'package:flutter_bookclub/states/currentUser.dart';
 import 'package:provider/provider.dart';
 
+enum LoginType { email, google }
+
 class OurLoginForm extends StatefulWidget {
   @override
   _OurLoginFormState createState() => _OurLoginFormState();
@@ -11,20 +13,35 @@ class OurLoginForm extends StatefulWidget {
 
 class _OurLoginFormState extends State<OurLoginForm> {
   TextEditingController _emailController = TextEditingController();
-
   TextEditingController _passwordController = TextEditingController();
 
-  void _loginUser(String email, String password, BuildContext context) async {
+  void _loginUser(
+      {@required LoginType type,
+      String email,
+      String password,
+      BuildContext context}) async {
     CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
     try {
-      if (await CurrentUser().loginiUserWithEmail(email, password)) {
+      String _retValString;
+      switch (type) {
+        case LoginType.email:
+          _retValString =
+              await CurrentUser().loginiUserWithEmail(email, password);
+          break;
+        case LoginType.google:
+          _retValString = await CurrentUser().loginiUserWithGoogle();
+          break;
+        default:
+      }
+
+      if (_retValString == "success") {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));
       } else {
         Scaffold.of(context).showSnackBar(
           SnackBar(
-            content: Text("Incorrect login info!"),
-            duration: Duration(milliseconds: 2),
+            content: Text(_retValString),
+            duration: Duration(milliseconds: 100),
           ),
         );
       }
@@ -68,6 +85,7 @@ class _OurLoginFormState extends State<OurLoginForm> {
             decoration: InputDecoration(
               hintText: "   Enter your password",
             ),
+            obscureText: true,
           ),
         ),
         Padding(
@@ -75,7 +93,10 @@ class _OurLoginFormState extends State<OurLoginForm> {
           child: RaisedButton(
             onPressed: () {
               _loginUser(
-                  _emailController.text, _passwordController.text, context);
+                  type: LoginType.email,
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                  context: context);
             },
             child: Padding(
               padding:
@@ -107,7 +128,9 @@ class _OurLoginFormState extends State<OurLoginForm> {
               color: Theme.of(context).primaryColor),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            _loginUser(type: LoginType.google, context: context);
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
