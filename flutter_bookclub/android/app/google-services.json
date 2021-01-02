@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "335343266357",
+    "project_id": "bookclub-ab63a",
+    "storage_bucket": "bookclub-ab63a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:335343266357:android:e48183adfc23d34aa85f7c",
+        "android_client_info": {
+          "package_name": "com.example.flutter_bookclub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "335343266357-qb18sdcfa1dbv81sbiv6occjiomlmfku.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2W91_-NwruKHELNSKMTcbUSxQQL7SOBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "335343266357-qb18sdcfa1dbv81sbiv6occjiomlmfku.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
