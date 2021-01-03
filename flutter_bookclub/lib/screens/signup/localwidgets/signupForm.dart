@@ -114,7 +114,7 @@ class _OurSignupFormState extends State<OurSignupForm> {
               },
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 100, vertical: 5.0),
+                    const EdgeInsets.symmetric(horizontal: 95, vertical: 5.0),
                 child: Text(
                   "Sign up",
                   style: TextStyle(color: Colors.white, fontSize: 20),
