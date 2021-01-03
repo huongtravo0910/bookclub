@@ -1,13 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bookclub/models/user.dart';
+import 'package:flutter_bookclub/services/database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class CurrentUser extends ChangeNotifier {
-  String _uid;
-  String _email;
+  OurUser _currentUser;
 
-  String get uid => _uid;
-  String get email => _email;
+  OurUser get getCurrentUser => _currentUser;
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -15,10 +16,11 @@ class CurrentUser extends ChangeNotifier {
     String retVal = "error";
 
     try {
-      User _user = await _auth.currentUser;
-      _uid = _user.uid;
-      _email = _user.email;
-      retVal = "success";
+      User _firebaseUser = await _auth.currentUser;
+      _currentUser = await OurDatabase().getUserInfo(_firebaseUser.uid);
+      if (_currentUser != null) {
+        retVal = "success";
+      }
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -30,8 +32,7 @@ class CurrentUser extends ChangeNotifier {
 
     try {
       await _auth.signOut();
-      _uid = null;
-      _email = null;
+      _currentUser = OurUser();
       retVal = "success";
     } catch (e) {
       debugPrint(e.toString());
@@ -39,14 +40,24 @@ class CurrentUser extends ChangeNotifier {
     return retVal;
   }
 
-  Future<String> signupUser(String email, String password) async {
+  Future<String> signupUser(
+      String email, String password, String fullName) async {
     String retVal = "error";
+    OurUser _user = OurUser();
     try {
       UserCredential _authResult = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
+      _user.uid = _authResult.user.uid;
+      _user.email = _authResult.user.email;
+      _user.fullName = fullName;
       if (_authResult.user != null) {
-        retVal = "success";
+        String retString = await OurDatabase().createDatabase(_user);
+        if (retString == "success") {
+          retVal = "success";
+        }
       }
+    } on PlatformException catch (e) {
+      retVal = e.message;
     } catch (e) {
       retVal = e.toString();
     }
@@ -59,10 +70,16 @@ class CurrentUser extends ChangeNotifier {
       UserCredential _authResult = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       if (_authResult.user != null) {
-        _uid = _authResult.user.uid;
-        _email = _authResult.user.email;
-        retVal = "success";
+        _currentUser = await OurDatabase().getUserInfo(_authResult.user.uid);
+        debugPrint("currentUser :" + _currentUser.toString());
+        if (_currentUser != null) {
+          retVal = "success";
+          debugPrint("currentUserUid :" + _currentUser.uid.toString());
+          debugPrint("currentUserEmail :" + _currentUser.email.toString());
+        }
       }
+    } on PlatformException catch (e) {
+      retVal = e.message;
     } catch (e) {
       retVal = e.toString();
     }
@@ -71,6 +88,7 @@ class CurrentUser extends ChangeNotifier {
 
   Future<String> loginiUserWithGoogle() async {
     String retVal = "error";
+    OurUser _user = OurUser();
     GoogleSignIn _googleSignIn = GoogleSignIn(
       scopes: [
         'email',
@@ -85,11 +103,18 @@ class CurrentUser extends ChangeNotifier {
       final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: _googleAuth.idToken, accessToken: _googleAuth.accessToken);
       UserCredential _authResult = await _auth.signInWithCredential(credential);
-      if (_authResult.user != null) {
-        _uid = _authResult.user.uid;
-        _email = _authResult.user.email;
+      if (_authResult.additionalUserInfo.isNewUser) {
+        _user.uid = _authResult.user.uid;
+        _user.email = _authResult.user.email;
+        _user.fullName = _authResult.user.displayName;
+        OurDatabase().createDatabase(_user);
+      }
+      _currentUser = await OurDatabase().getUserInfo(_authResult.user.uid);
+      if (_currentUser != null) {
         retVal = "success";
       }
+    } on PlatformException catch (e) {
+      retVal = e.message;
     } catch (e) {
       retVal = e.toString();
     }
