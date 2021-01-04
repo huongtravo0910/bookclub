@@ -45,6 +45,7 @@ class _OurJoinGroupState extends State<OurJoinGroup> {
                     controller: _groupIdController,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.people),
+                      hintText: "Group id",
                     ),
                   ),
                   SizedBox(height: 20.0),

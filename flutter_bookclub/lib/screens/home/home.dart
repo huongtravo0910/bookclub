@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bookclub/screens/addBook/addBook.dart';
 import 'package:flutter_bookclub/screens/noGroupScreen/noGroup.dart';
 import 'package:flutter_bookclub/screens/root/rootScreen.dart';
 import 'package:flutter_bookclub/states/currentGroup.dart';
 import 'package:flutter_bookclub/states/currentUser.dart';
 import 'package:flutter_bookclub/widgets/ourContainer.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,9 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    void _goToNoGroup(BuildContext context) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => OurNoGroup()));
+    void _goToAddBook(BuildContext context) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => OurAddBook(
+                onGroupCreation: false,
+              )));
     }
 
     return Scaffold(
@@ -76,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: Text(
                               (value.getCurrentGroup.currentBookDue != null)
-                                  ? value.getCurrentGroup.currentBookDue
+                                  ? (value.getCurrentGroup.currentBookDue)
                                       .toDate()
                                       .toString()
                                   : "loading...",
@@ -127,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
               child: RaisedButton(
                 onPressed: () {
-                  _goToNoGroup(context);
+                  _goToAddBook(context);
                 },
                 child: Text(
                   "BookClub History",

@@ -41,17 +41,25 @@ class OurDatabase {
     return retVal;
   }
 
-  Future<String> createGroup(String groupName, String userUid) async {
+  Future<String> createGroup(
+      String groupName, String userUid, OurBook initialBook) async {
     String retVal = "error";
     List<String> members = List();
     try {
       members.add(userUid);
-      await _firestore.collection("groups").add({
+      DocumentReference _docRef = await _firestore.collection("groups").add({
         "name": groupName,
         "leader": userUid,
         "members": members,
         "groupCreated": Timestamp.now(),
       });
+
+      await _firestore.collection("users").doc(userUid).update({
+        "groupId": _docRef.id,
+      });
+
+      addBook(_docRef.id, initialBook);
+
       retVal = "success";
     } catch (e) {
       debugPrint(e.toString());
@@ -94,6 +102,35 @@ class OurDatabase {
       debugPrint(e.toString());
     }
 
+    return retVal;
+  }
+
+  Future<String> addBook(String groupId, OurBook book) async {
+    String retVal = "error";
+    try {
+      debugPrint("preAddingBook");
+      DocumentReference _docRef = await _firestore
+          .collection("groups")
+          .doc(groupId)
+          .collection("books")
+          .add({
+        "name": book.name,
+        "author": book.author,
+        "length": book.length,
+        "dateCompleted": book.dateCompleted,
+      });
+      debugPrint("bookId " + _docRef.id.toString());
+      debugPrint("groupId " + groupId.toString());
+
+      await _firestore.collection("groups").doc(groupId).update({
+        "currentBookId": _docRef.id,
+        "currentBookDue": book.dateCompleted,
+      });
+
+      retVal = "success";
+    } catch (e) {
+      debugPrint(e.toString());
+    }
     return retVal;
   }
 

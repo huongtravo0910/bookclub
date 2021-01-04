@@ -16,7 +16,7 @@ class OurTheme {
       hintColor: _greyDark,
       inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(40),
+            borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: _greyLight),
           ),
           focusedBorder: OutlineInputBorder(
