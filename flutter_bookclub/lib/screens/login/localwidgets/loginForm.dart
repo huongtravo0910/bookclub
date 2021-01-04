@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bookclub/screens/home/home.dart';
+import 'package:flutter_bookclub/screens/root/rootScreen.dart';
 import 'package:flutter_bookclub/screens/signup/signup.dart';
 import 'package:flutter_bookclub/states/currentUser.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +38,7 @@ class _OurLoginFormState extends State<OurLoginForm> {
       if (_retValString == "success") {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => HomeScreen()),
+          MaterialPageRoute(builder: (_) => OurRootScreen()),
           (route) => false,
         );
       } else {

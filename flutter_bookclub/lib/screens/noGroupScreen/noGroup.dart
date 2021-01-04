@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bookclub/screens/createGroup/createGroup.dart';
+import 'package:flutter_bookclub/screens/joinGroup/joinGroup.dart';
 
 class OurNoGroup extends StatelessWidget {
+  void _goToJoin(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => OurJoinGroup()));
+  }
+
+  void _goToCreate(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => OurCreateGroup()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Spacer(
@@ -44,7 +56,7 @@ class OurNoGroup extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: RaisedButton(
-                    onPressed: () {},
+                    onPressed: () => _goToJoin(context),
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
@@ -56,7 +68,7 @@ class OurNoGroup extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: RaisedButton(
-                    onPressed: () {},
+                    onPressed: () => _goToCreate(context),
                     child: Text("Create"),
                   ),
                 )

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bookclub/screens/home/home.dart';
 import 'package:flutter_bookclub/screens/login/login.dart';
+import 'package:flutter_bookclub/screens/noGroupScreen/noGroup.dart';
+import 'package:flutter_bookclub/screens/splashScreen/ourSplashScreen.dart';
+import 'package:flutter_bookclub/states/currentGroup.dart';
 import 'package:flutter_bookclub/states/currentUser.dart';
 import 'package:provider/provider.dart';
 
 enum AuthStatus {
+  unknown,
   notLoggedIn,
-  loggedIn,
+  notInGroup,
+  inGroup,
 }
 
 class OurRootScreen extends StatefulWidget {
@@ -15,18 +20,27 @@ class OurRootScreen extends StatefulWidget {
 }
 
 class _OurRootScreenState extends State<OurRootScreen> {
-  AuthStatus _authStatus = AuthStatus.notLoggedIn;
+  AuthStatus _authStatus = AuthStatus.unknown;
 
   @override
   void didChangeDependencies() async {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    CurrentUser _user = Provider.of<CurrentUser>(context, listen: false);
-    String _retString = await _user.onStartUp();
+    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
+    String _retString = await _currentUser.onStartUp();
+
     if (_retString == "success") {
-      setState(() {
-        _authStatus = AuthStatus.loggedIn;
-      });
+      if (_currentUser.getCurrentUser.groupId != null) {
+        debugPrint(
+            "currentUserGroupId :" + _currentUser.getCurrentUser.groupId);
+        setState(() {
+          _authStatus = AuthStatus.inGroup;
+        });
+      } else {
+        setState(() {
+          _authStatus = AuthStatus.notInGroup;
+        });
+      }
     } else {
       setState(() {
         _authStatus = AuthStatus.notLoggedIn;
@@ -38,11 +52,20 @@ class _OurRootScreenState extends State<OurRootScreen> {
   Widget build(BuildContext context) {
     Widget retVal;
     switch (_authStatus) {
+      case AuthStatus.unknown:
+        retVal = OurSplashScreen();
+        break;
       case AuthStatus.notLoggedIn:
         retVal = OurLogin();
         break;
-      case AuthStatus.loggedIn:
-        retVal = HomeScreen();
+      case AuthStatus.notInGroup:
+        retVal = OurNoGroup();
+        break;
+      case AuthStatus.inGroup:
+        retVal = ChangeNotifierProvider(
+          create: (context) => CurrentGroup(),
+          child: HomeScreen(),
+        );
         break;
       default:
     }
