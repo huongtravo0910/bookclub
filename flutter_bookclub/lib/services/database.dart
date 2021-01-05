@@ -108,7 +108,6 @@ class OurDatabase {
   Future<String> addBook(String groupId, OurBook book) async {
     String retVal = "error";
     try {
-      debugPrint("preAddingBook");
       DocumentReference _docRef = await _firestore
           .collection("groups")
           .doc(groupId)
@@ -119,8 +118,6 @@ class OurDatabase {
         "length": book.length,
         "dateCompleted": book.dateCompleted,
       });
-      debugPrint("bookId " + _docRef.id.toString());
-      debugPrint("groupId " + groupId.toString());
 
       await _firestore.collection("groups").doc(groupId).update({
         "currentBookId": _docRef.id,
@@ -152,6 +149,54 @@ class OurDatabase {
       debugPrint(e.toString());
     }
 
+    return retVal;
+  }
+
+  Future<String> finishedBook(
+    String groupId,
+    String bookId,
+    String uid,
+    int rating,
+    String review,
+  ) async {
+    String retVal = "error";
+    try {
+      await _firestore
+          .collection("groups")
+          .doc(groupId)
+          .collection("books")
+          .doc(bookId)
+          .collection("reviews")
+          .doc(uid)
+          .set({
+        "rating": rating,
+        "review": review,
+      });
+      retVal = "success";
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return retVal;
+  }
+
+  Future<bool> isUserDoneWithBook(
+      String groupId, String bookId, String uid) async {
+    bool retVal = false;
+    try {
+      DocumentSnapshot _docSnapShot = await _firestore
+          .collection("groups")
+          .doc("groupId")
+          .collection("books")
+          .doc(bookId)
+          .collection("reviews")
+          .doc(uid)
+          .get();
+      if (_docSnapShot.exists) {
+        retVal = true;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
     return retVal;
   }
 }

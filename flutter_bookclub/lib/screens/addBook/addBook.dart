@@ -111,8 +111,6 @@ class _OurAddBookState extends State<OurAddBook> {
                       book.author = _authorController.text;
                       book.length = int.parse(_lengthController.text);
                       book.dateCompleted = Timestamp.fromDate(_selectedDate);
-                      debugPrint("Book" + book.toString());
-                      debugPrint("Book Name :" + book.name.toString());
                       _addBook(context, widget.groupName, book);
                     },
                     child: Padding(

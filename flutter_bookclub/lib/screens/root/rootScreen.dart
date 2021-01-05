@@ -5,6 +5,7 @@ import 'package:flutter_bookclub/screens/noGroupScreen/noGroup.dart';
 import 'package:flutter_bookclub/screens/splashScreen/ourSplashScreen.dart';
 import 'package:flutter_bookclub/states/currentGroup.dart';
 import 'package:flutter_bookclub/states/currentUser.dart';
+import 'package:flutter_bookclub/widgets/dismissKeyboard.dart';
 import 'package:provider/provider.dart';
 
 enum AuthStatus {
@@ -15,6 +16,9 @@ enum AuthStatus {
 }
 
 class OurRootScreen extends StatefulWidget {
+  final int count;
+
+  const OurRootScreen({Key key, this.count}) : super(key: key);
   @override
   _OurRootScreenState createState() => _OurRootScreenState();
 }
@@ -23,16 +27,29 @@ class _OurRootScreenState extends State<OurRootScreen> {
   AuthStatus _authStatus = AuthStatus.unknown;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    debugPrint("init" + context.toString());
+    try {
+      CurrentUser _currentUser =
+          Provider.of<CurrentUser>(context, listen: false);
+      debugPrint("init" + _currentUser.getCurrentUser.email);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
   void didChangeDependencies() async {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
     String _retString = await _currentUser.onStartUp();
+    debugPrint("did" + _currentUser.getCurrentUser.email);
 
     if (_retString == "success") {
       if (_currentUser.getCurrentUser.groupId != null) {
-        debugPrint(
-            "currentUserGroupId :" + _currentUser.getCurrentUser.groupId);
         setState(() {
           _authStatus = AuthStatus.inGroup;
         });
@@ -46,6 +63,7 @@ class _OurRootScreenState extends State<OurRootScreen> {
         _authStatus = AuthStatus.notLoggedIn;
       });
     }
+    debugPrint("context" + context.toString());
   }
 
   @override
@@ -69,6 +87,11 @@ class _OurRootScreenState extends State<OurRootScreen> {
         break;
       default:
     }
-    return retVal;
+    return Column(
+      children: [
+        Text(widget.count.toString()),
+        Expanded(child: DismissKeyboard(child: retVal)),
+      ],
+    );
   }
 }

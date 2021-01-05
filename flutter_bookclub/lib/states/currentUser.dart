@@ -16,7 +16,7 @@ class CurrentUser extends ChangeNotifier {
     String retVal = "error";
 
     try {
-      User _firebaseUser = await _auth.currentUser;
+      User _firebaseUser = _auth.currentUser;
       _currentUser = await OurDatabase().getUserInfo(_firebaseUser.uid);
       if (_currentUser != null) {
         retVal = "success";
@@ -71,11 +71,8 @@ class CurrentUser extends ChangeNotifier {
           email: email, password: password);
       if (_authResult.user != null) {
         _currentUser = await OurDatabase().getUserInfo(_authResult.user.uid);
-        debugPrint("currentUser :" + _currentUser.toString());
         if (_currentUser != null) {
           retVal = "success";
-          debugPrint("currentUserUid :" + _currentUser.uid.toString());
-          debugPrint("currentUserEmail :" + _currentUser.email.toString());
         }
       }
     } on PlatformException catch (e) {

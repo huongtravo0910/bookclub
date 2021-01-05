@@ -1,11 +1,14 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bookclub/screens/addBook/addBook.dart';
-import 'package:flutter_bookclub/screens/noGroupScreen/noGroup.dart';
+import 'package:flutter_bookclub/screens/reviewBook/reviewBook.dart';
 import 'package:flutter_bookclub/screens/root/rootScreen.dart';
 import 'package:flutter_bookclub/states/currentGroup.dart';
 import 'package:flutter_bookclub/states/currentUser.dart';
+import 'package:flutter_bookclub/utils/timeLeft.dart';
 import 'package:flutter_bookclub/widgets/ourContainer.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,6 +17,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<String> _timeUtil = List(2);
+  Timer _timer;
+  void _startTimer(CurrentGroup currentGroup) {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _timeUtil = OurTimeLeft()
+            .timeLeft(currentGroup.getCurrentGroup.currentBookDue.toDate());
+      });
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -22,7 +36,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     CurrentGroup _currentGroup =
         Provider.of<CurrentGroup>(context, listen: false);
-    _currentGroup.updateStateFromDatabase(_currentUser.getCurrentUser.groupId);
+    _currentGroup.updateStateFromDatabase(
+        _currentUser.getCurrentUser.groupId, _currentUser.getCurrentUser.uid);
+    _startTimer(_currentGroup);
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void _signOut(BuildContext context) async {
@@ -37,15 +59,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _goToReview(BuildContext context) {
+    CurrentGroup _currentGroup =
+        Provider.of<CurrentGroup>(context, listen: false);
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => OurReview(
+              currentGroup: _currentGroup,
+            )));
+  }
+
+  void _goToAddBook(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => OurAddBook(
+              onGroupCreation: false,
+            )));
+  }
+
   @override
   Widget build(BuildContext context) {
-    void _goToAddBook(BuildContext context) {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => OurAddBook(
-                onGroupCreation: false,
-              )));
-    }
-
     return Scaffold(
         backgroundColor: Theme.of(context).secondaryHeaderColor,
         body: ListView(
@@ -79,11 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Expanded(
                             child: Text(
-                              (value.getCurrentGroup.currentBookDue != null)
-                                  ? (value.getCurrentGroup.currentBookDue)
-                                      .toDate()
-                                      .toString()
-                                  : "loading...",
+                              _timeUtil[0] ?? "loading...",
                               style: TextStyle(
                                   fontSize: 24,
                                   color: Colors.grey[800],
@@ -96,7 +123,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 5.0,
                       ),
                       RaisedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          CurrentGroup _currentGroup =
+                              Provider.of<CurrentGroup>(context, listen: false);
+                          debugPrint(_currentGroup.getIsDoneWithCurrentBook
+                              .toString());
+                          value.getIsDoneWithCurrentBook
+                              ? null
+                              : _goToReview(context);
+                        },
                         child: Text(
                           "Finished book",
                           style: TextStyle(color: Colors.white),
@@ -110,15 +145,15 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: EdgeInsets.all(20.0),
               child: OurContainer(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "Next book revealed in : ",
+                      "Next book \nRevealed in : ",
                       style: TextStyle(
                           fontSize: 24, color: Theme.of(context).primaryColor),
                     ),
-                    Text("22 days",
+                    Text(_timeUtil[1] ?? "loading...",
                         style: TextStyle(
                             fontSize: 30,
                             color: Colors.grey[800],

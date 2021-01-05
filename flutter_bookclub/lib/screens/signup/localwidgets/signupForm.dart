@@ -22,7 +22,6 @@ class _OurSignupFormState extends State<OurSignupForm> {
     try {
       String _retVal = await _currentUser.signupUser(email, password, fullName);
       if (_retVal == "success") {
-        debugPrint("hello");
         Navigator.pop(context);
       } else {
         Scaffold.of(context).showSnackBar(
